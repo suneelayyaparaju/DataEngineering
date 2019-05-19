@@ -1,7 +1,11 @@
 package com.dataqueue
 
 import scala.util.matching.Regex
-
+/**
+  * This class holds business logic for Log parsing and Analysis.
+  *
+  * @author Suneel Ayyaparaju
+  */
 object LogParser {
   val PATTERN: Regex = """^(\S+) (\S+) (\S+) \[([\w:/]+\s[+\-]\d{4})\] "(\S+) (\S+)(.*)" (\d{3}) (\S+)""".r
 
