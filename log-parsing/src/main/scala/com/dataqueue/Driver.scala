@@ -1,5 +1,7 @@
 package com.dataqueue
 
+import java.io.File
+
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.log4j.Logger
 
@@ -10,11 +12,11 @@ import org.apache.log4j.Logger
   */
 object Driver {
   val logger: Logger = Logger.getLogger(Driver.getClass)
-  val config: Config = ConfigFactory.load()
+  var config: Config = ConfigFactory.load()
   def main(args: Array[String]) {
     try {
       ParserConf.createSparkSession(config)
-      LogParser.parseLogs()
+      LogParser.parseLogs(config)
 
     } catch {
       case ex: Exception => {

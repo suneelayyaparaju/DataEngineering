@@ -1,5 +1,7 @@
 package com.dataqueue
 
+import com.typesafe.config.Config
+
 import scala.util.matching.Regex
 /**
   * This class holds business logic for Log parsing and Analysis.
@@ -9,10 +11,10 @@ import scala.util.matching.Regex
 object LogParser {
   val PATTERN: Regex = """^(\S+) (\S+) (\S+) \[([\w:/]+\s[+\-]\d{4})\] "(\S+) (\S+)(.*)" (\d{3}) (\S+)""".r
 
-  def parseLogs(): Unit = {
+  def parseLogs(config: Config): Unit = {
     val spark = ParserConf.getSparkSession
     import spark.sqlContext.implicits._
-    val logFile = spark.sparkContext.textFile("data/NASA_access_log_Aug95.gz")
+    val logFile = spark.sparkContext.textFile(config.getString("logFilePath"))
     val accessLog = logFile.map(parseLogLine)
     val accessDf = accessLog.toDF()
     accessDf.printSchema
@@ -23,7 +25,10 @@ object LogParser {
     spark.sql("cache TABLE nasa_log")
 
     // **Q1: Write spark code to find out top 10 requested URLs along with count of number of times they have been requested (This information will help company to find out most popular pages and how frequently they are accessed)**
-    spark.sql("select url,count(*) as req_cnt from nasa_log where upper(url) like '%HTML%' group by url order by req_cnt desc LIMIT 10").show
+    val top10ReqUrls = spark.sql("select url,count(*) as req_cnt from nasa_log where upper(url) like '%HTML%' group by url order by req_cnt desc")
+    top10ReqUrls.show(false)
+    //Write to CSV file
+    DSCsvGenerator.generateCsvFromDataset(config.getString("top10ReqUrlsCsvPath"), true, true, top10ReqUrls, config)
 
     // **Q2: Write spark code to find out top 5 hosts / IP making the request along with count (This information will help company to find out locations where website is popular or to figure out potential DDoS attacks)**
     spark.sql("select host,count(*) as req_cnt from nasa_log group by host order by req_cnt desc LIMIT 5").show
@@ -46,7 +51,7 @@ object LogParser {
       LogRecord("Empty", "", "",  -1 )
     } else {
       val m = res.get
-      LogRecord(m.group(1), m.group(4),m.group(6), m.group(8).toInt)
+      LogRecord(m.group(1), m.group(4), m.group(6), m.group(8).toInt)
     }
   }
 
