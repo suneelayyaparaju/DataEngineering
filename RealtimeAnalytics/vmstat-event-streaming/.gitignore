@@ -10,6 +10,8 @@
 /project/plugins/project
 project/boot
 target/
+metastore_db
+derby.log
 /logs
 .cache
 .classpath
@@ -18,3 +20,4 @@ target/
 native/
 .sonar/
 .scannerwork/
+
