@@ -1,9 +1,8 @@
 package com.dataqueue
 
-import java.io.File
-
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.log4j.Logger
+import org.apache.log4j.Level
 
 /**
   * Driver/Main entry point for the application.
@@ -13,6 +12,8 @@ import org.apache.log4j.Logger
 object Driver {
   val logger: Logger = Logger.getLogger(Driver.getClass)
   var config: Config = ConfigFactory.load()
+  Logger.getLogger("org").setLevel(Level.OFF)
+  Logger.getLogger("akka").setLevel(Level.OFF)
   def main(args: Array[String]) {
     try {
       SparkSessionConf.createSparkSession(config)
